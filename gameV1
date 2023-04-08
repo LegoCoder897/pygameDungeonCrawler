@@ -1,0 +1,95 @@
+import pygame
+import random
+
+# Initialize Pygame
+pygame.init()
+
+# Set the screen size
+screen_width = 800
+screen_height = 600
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("Dungeon Crawler")
+
+# Set the font and font size
+font = pygame.font.SysFont(None, 30)
+
+# Set the colors
+white = (255, 255, 255)
+black = (0, 0, 0)
+
+# Set the player position and speed
+player_pos = [screen_width/2, screen_height/2]
+player_speed = 5
+
+# Set the enemy position and speed
+enemy_pos = [random.randint(0, screen_width-50), random.randint(0, screen_height-50)]
+enemy_speed = 2
+
+# Set the game loop
+game_over = False
+clock = pygame.time.Clock()
+
+# Define the functions
+def draw_text(text, font, color, surface, x, y):
+    text_obj = font.render(text, True, color)
+    text_rect = text_obj.get_rect()
+    text_rect.center = (x, y)
+    surface.blit(text_obj, text_rect)
+
+def draw_player(surface, player_pos):
+    pygame.draw.rect(surface, white, (player_pos[0], player_pos[1], 50, 50))
+
+def draw_enemy(surface, enemy_pos):
+    pygame.draw.rect(surface, black, (enemy_pos[0], enemy_pos[1], 50, 50))
+
+def move_enemy(enemy_pos):
+    direction = random.choice(['up', 'down', 'left', 'right'])
+    if direction == 'up':
+        enemy_pos[1] -= enemy_speed
+    elif direction == 'down':
+        enemy_pos[1] += enemy_speed
+    elif direction == 'left':
+        enemy_pos[0] -= enemy_speed
+    elif direction == 'right':
+        enemy_pos[0] += enemy_speed
+    return enemy_pos
+
+# Start the game loop
+while not game_over:
+
+    # Handle events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            game_over = True
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                player_pos[0] -= player_speed
+            elif event.key == pygame.K_RIGHT:
+                player_pos[0] += player_speed
+            elif event.key == pygame.K_UP:
+                player_pos[1] -= player_speed
+            elif event.key == pygame.K_DOWN:
+                player_pos[1] += player_speed
+
+    # Move the enemy
+    enemy_pos = move_enemy(enemy_pos)
+
+    # Check for collision
+    if (player_pos[0] > enemy_pos[0] and player_pos[0] < enemy_pos[0]+50) or \
+       (player_pos[0]+50 > enemy_pos[0] and player_pos[0]+50 < enemy_pos[0]+50):
+        if (player_pos[1] > enemy_pos[1] and player_pos[1] < enemy_pos[1]+50) or \
+           (player_pos[1]+50 > enemy_pos[1] and player_pos[1]+50 < enemy_pos[1]+50):
+            game_over = True
+
+    # Fill the background
+    screen.fill(white)
+
+    # Draw the player and enemy
+    draw_player(screen, player_pos)
+    draw_enemy(screen, enemy_pos)
+
+    # Draw the score
+    draw_text("Score: 0", font, black, screen, 70, 20)
+
+    # Update the screen
+    pygame.display.update
